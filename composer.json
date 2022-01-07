@@ -1,0 +1,6 @@
+{
+    "name": "civicrm/formprotection",
+    "require": {
+        "google/recaptcha": "^1.2"
+    }
+}
