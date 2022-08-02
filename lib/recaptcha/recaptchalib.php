@@ -101,20 +101,25 @@ function recaptcha_get_html ($pubkey, $error = NULL, $use_ssl = FALSE) {
   if ($error) {
     $errorpart = "&amp;error=" . $error;
   }
-  return '<script src="' . $server . '?render=' . $pubkey . '"></script>
+  return '<form method="post" action="#">
+  <input type="hidden" id="g-recaptcha-token" name="g-recaptcha-token">
+  </form>
+  <script src="' . $server . '?render=' . $pubkey . '"></script>
 	<script type="text/javascript">
 	alert("Test recaptcha v3");
   grecaptcha.ready(function() {
       grecaptcha.execute(\'' .  $pubkey . '\', {action: "validate_captcha"}).then(function(token) {
-         alert(token);
-		     document.getElementsByName("g-recaptcha-token")[0].value = token;
+      alert(token);
+	  document.getElementById("g-recaptcha-token").value = token;
+      alert("Hello check");
       });
   });
   setInterval(function () {
   grecaptcha.ready(function () {
     grecaptcha.execute(\''. $pubkey . '\', { action: "validate_captcha" }).then(function (token) {
-      	alert(token);
-        document.getElementsByName("g-recaptcha-token")[0].value = token;
+      alert(token);
+      document.getElementById("g-recaptcha-token").value = token;
+      alert("Hello check");
     });
   });
 }, 60 * 1000);
@@ -165,13 +170,12 @@ function recaptcha_check_answer ($privkey, $remoteip, $response, $extra_params =
 
   $answers = json_decode($validationResponse, TRUE);
   $recaptcha_response = new ReCaptchaResponse();
-
   if($answers['score'] > 0.5) {
 	  $recaptcha_response->is_valid = $answers['success'] ?? NULL;
 	  $recaptcha_response->error = $answers['error-codes'] ?? NULL;
   }
   else {
-	  $recaptcha_response->is_valid = NULL;
+	  $recaptcha_response->is_valid = FALSE;
 	  $recaptcha_response->error = $answers['error-codes'] ?? NULL;
   }
   return $recaptcha_response;
