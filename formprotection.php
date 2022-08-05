@@ -83,9 +83,9 @@ function formprotection_civicrm_entityTypes(&$entityTypes) {
  */
 function formprotection_civicrm_navigationMenu(&$menu) {
   _formprotection_civix_insert_navigation_menu($menu, 'Administer/System Settings', [
-    'label' => E::ts('reCAPTCHA Settings'),
-    'name' => 'recaptcha_settings',
-    'url' => 'civicrm/admin/setting/recaptcha',
+    'label' => E::ts('reCAPTCHA Settings (formprotection)'),
+    'name' => 'formprotection_kartik_settings',
+    'url' => 'civicrm/admin/setting/formprotection-kartik',
     'permission' => 'administer CiviCRM',
     'operator' => 'OR',
     'separator' => 0,
@@ -122,10 +122,11 @@ function formprotection_civicrm_validateForm($formName, &$fields, &$files, &$for
 	require_once E::path('lib/recaptcha/recaptchalib.php');
 	echo '<script>alert(' . $_POST['g-recaptcha-token'] . ')</script>';
 	print_r($fields);
-	$resp = recaptcha_check_answer(CRM_Core_Config::singleton()->recaptchaPrivateKey,
-      $_SERVER['REMOTE_ADDR'],
-      $_POST['g-recaptcha-token']
-    );
+	$resp = recaptcha_check_answer(
+    \Civi::settings()->get('formprotection_recaptchaPrivateKey'),
+    $_SERVER['REMOTE_ADDR'],
+    $_POST['g-recaptcha-token']
+  );
 	//$resp->is_valid = FALSE;
 	if(!$resp->is_valid) {
 		$errors['recaptcha'] = E::ts('ReCAPTCHA v3 token not generated or invalid score');

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <menu>
   <item>
-    <path>civicrm/admin/setting/recaptcha</path>
-    <title>reCAPTCHA Settings</title>
+    <path>civicrm/admin/setting/formprotection-kartik</path>
+    <title>reCAPTCHA Settings (form protection)</title>
     <desc>Configure anti-abuse/bot-prevention service</desc>
     <page_callback>CRM_Admin_Form_Generic</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>

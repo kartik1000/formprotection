@@ -15,10 +15,10 @@ use CRM_Formprotection_ExtensionUtil as E;
  * Settings metadata file
  */
 return [
-  'recaptchaPublicKey' => [
+  'formprotection_recaptchaPublicKey' => [
     'group_name' => 'CiviCRM Preferences',
     'group' => 'core',
-    'name' => 'recaptchaPublicKey',
+    'name' => 'formprotection_recaptchaPublicKey',
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_attributes' => [
@@ -34,15 +34,15 @@ return [
     'description' => NULL,
     'help_text' => NULL,
     'settings_pages' => [
-      'recaptcha' => [
+      'formprotection-kartik' => [
         'weight' => 10,
       ],
     ],
   ],
-  'recaptchaPrivateKey' => [
+  'formprotection_recaptchaPrivateKey' => [
     'group_name' => 'CiviCRM Preferences',
     'group' => 'core',
-    'name' => 'recaptchaPrivateKey',
+    'name' => 'formprotection_recaptchaPrivateKey',
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_attributes' => [
@@ -58,19 +58,19 @@ return [
     'description' => NULL,
     'help_text' => NULL,
     'settings_pages' => [
-      'recaptcha' => [
+      'formprotection-kartik' => [
         'weight' => 10,
       ],
     ],
   ],
-  'forceRecaptcha' => [
+  'formprotection_forceRecaptcha' => [
     'add' => '4.7',
     'help_text' => NULL,
     'is_domain' => 1,
     'is_contact' => 0,
     'group_name' => 'CiviCRM Preferences',
     'group' => 'core',
-    'name' => 'forceRecaptcha',
+    'name' => 'formprotection_forceRecaptcha',
     'type' => 'Boolean',
     'quick_form_type' => 'YesNo',
     'html_type' => '',
@@ -78,15 +78,15 @@ return [
     'title' => E::ts('Force reCAPTCHA on Contribution pages'),
     'description' => E::ts('If enabled, reCAPTCHA will show on all contribution pages.'),
     'settings_pages' => [
-      'recaptcha' => [
+      'formprotection-kartik' => [
         'weight' => 10,
       ],
     ],
   ],
-  'recaptchaOptions' => [
+  'formprotection_recaptchaOptions' => [
     'group_name' => 'CiviCRM Preferences',
     'group' => 'core',
-    'name' => 'recaptchaOptions',
+    'name' => 'formprotection_recaptchaOptions',
     'type' => 'String',
     'quick_form_type' => 'Element',
     'html_attributes' => [
@@ -102,9 +102,28 @@ return [
     'description' => E::ts('You can specify the reCAPTCHA theme options as comma separated data.(eg: theme:\'blackglass\', lang : \'fr\' ). Check the available options at <a href="https://developers.google.com/recaptcha/docs/display#config">Customizing the Look and Feel of reCAPTCHA</a>.'),
     'help_text' => NULL,
     'settings_pages' => [
-      'recaptcha' => [
+      'formprotection-kartik' => [
         'weight' => 10,
       ],
+    ],
+  ],
+  'formprotection_recaptchaversion' => [
+    'default' => 'v3',
+    'html_type' => 'select',
+    'name' => 'formprotection_recaptchaversion',
+    'title' => ts('reCAPTCHA version'),
+    'type' => CRM_Utils_Type::T_STRING,
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => ts('Select the reCAPTCHA version'),
+    'options' => [
+      'v3' => ts('reCAPTCHA v3'),
+      'v2checkbox' => ts('reCAPTCHA v2 ("I\'m not a robot" Checkbox)'),
+    ],
+    'settings_pages' => [
+      'formprotection-kartik' => [
+        'weight' => 1,
+      ]
     ],
   ],
 ];
