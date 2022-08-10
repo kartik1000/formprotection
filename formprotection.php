@@ -119,16 +119,18 @@ function formprotection_civicrm_buildForm($formName, &$form) {
 }
 
 function formprotection_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
-	require_once E::path('lib/recaptcha/recaptchalib.php');
-	echo '<script>alert(' . $_POST['g-recaptcha-token'] . ')</script>';
-	print_r($fields);
-	$resp = recaptcha_check_answer(
-    \Civi::settings()->get('formprotection_recaptchaPrivateKey'),
-    $_SERVER['REMOTE_ADDR'],
-    $_POST['g-recaptcha-token']
-  );
-	//$resp->is_valid = FALSE;
-	if(!$resp->is_valid) {
-		$errors['recaptcha'] = E::ts('ReCAPTCHA v3 token not generated or invalid score');
+	if(isset($_POST['g-recaptcha-token'])) {
+		require_once E::path('lib/recaptcha/recaptchalib.php');
+		echo '<script>alert(' . $_POST['g-recaptcha-token'] . ')</script>';
+		print_r($fields);
+		$resp = recaptcha_check_answer(
+		\Civi::settings()->get('formprotection_recaptchaPrivateKey'),
+		$_SERVER['REMOTE_ADDR'],
+		$_POST['g-recaptcha-token']
+	  );
+		//$resp->is_valid = FALSE;
+		if(!$resp->is_valid) {
+			$errors['recaptcha'] = E::ts('ReCAPTCHA v3 token not generated or invalid score');
+		}
 	}
 }
