@@ -9,7 +9,7 @@
  +--------------------------------------------------------------------+
  */
 
-use CRM_Recaptcha_ExtensionUtil as E;
+use CRM_Formprotection_ExtensionUtil as E;
 
 /**
  *
