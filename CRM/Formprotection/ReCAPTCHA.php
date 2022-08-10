@@ -16,7 +16,7 @@ use CRM_Recaptcha_ExtensionUtil as E;
  * @package CRM
  * @copyright CiviCRM LLC https://civicrm.org/licensing
  */
-class CRM_Utils_ReCAPTCHA {
+class CRM_Formprotection_ReCAPTCHA {
 
   protected $_captcha = NULL;
 
@@ -32,7 +32,7 @@ class CRM_Utils_ReCAPTCHA {
    * We only need one instance of this object. So we use the singleton
    * pattern and cache the instance in this variable
    *
-   * @var CRM_Utils_ReCAPTCHA
+   * @var CRM_Formprotection_ReCAPTCHA
    */
   private static $_singleton = NULL;
 
@@ -43,7 +43,7 @@ class CRM_Utils_ReCAPTCHA {
    */
   public static function &singleton() {
     if (self::$_singleton === NULL) {
-      self::$_singleton = new CRM_Utils_ReCAPTCHA();
+      self::$_singleton = new CRM_Formprotection_ReCAPTCHA();
     }
     return self::$_singleton;
   }
@@ -52,7 +52,7 @@ class CRM_Utils_ReCAPTCHA {
    * Check if reCaptcha settings is avilable to add on form.
    */
   public static function hasSettingsAvailable() {
-    return (bool) \Civi::settings()->get('recaptchaPublicKey');
+    return (bool) \Civi::settings()->get('formprotection_recaptchaPublicKey');
   }
 
   /**
@@ -73,10 +73,10 @@ class CRM_Utils_ReCAPTCHA {
     // Load the Recaptcha api.js over HTTPS
     $useHTTPS = TRUE;
 
-    $html = recaptcha_get_html(\Civi::settings()->get('recaptchaPublicKey'), $error, $useHTTPS);
+    $html = recaptcha_get_html(\Civi::settings()->get('formprotection_recaptchaPublicKey'), $error, $useHTTPS);
 
     $form->assign('recaptchaHTML', $html);
-    $form->assign('recaptchaOptions', \Civi::settings()->get('recaptchaOptions'));
+    $form->assign('recaptchaOptions', \Civi::settings()->get('formprotection_recaptchaOptions'));
   }
 
   /**
@@ -85,7 +85,7 @@ class CRM_Utils_ReCAPTCHA {
    * @param CRM_Core_Form $form
    */
   public static function enableCaptchaOnForm(&$form) {
-    $captcha = CRM_Utils_ReCAPTCHA::singleton();
+    $captcha = CRM_Formprotection_ReCAPTCHA::singleton();
     if ($captcha->hasSettingsAvailable()) {
       $captcha->add($form);
       $form->assign('isCaptcha', TRUE);
@@ -99,7 +99,8 @@ class CRM_Utils_ReCAPTCHA {
    * @return mixed
    */
   public static function validate($value, $form) {
-    $resp = recaptcha_check_answer(CRM_Core_Config::singleton()->recaptchaPrivateKey,
+    $resp = recaptcha_check_answer(
+      \Civi::settings()->get('formprotection_recaptchaPrivateKey'),
       $_SERVER['REMOTE_ADDR'],
       $_POST['g-recaptcha-response']
     );
