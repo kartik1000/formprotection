@@ -119,18 +119,24 @@ function formprotection_civicrm_buildForm($formName, &$form) {
 }
 
 function formprotection_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
-	if(isset($_POST['g-recaptcha-token'])) {
-		require_once E::path('lib/recaptcha/recaptchalib.php');
-		echo '<script>alert(' . $_POST['g-recaptcha-token'] . ')</script>';
-		print_r($fields);
-		$resp = recaptcha_check_answer(
-		\Civi::settings()->get('formprotection_recaptchaPrivateKey'),
-		$_SERVER['REMOTE_ADDR'],
-		$_POST['g-recaptcha-token']
-	  );
-		//$resp->is_valid = FALSE;
-		if(!$resp->is_valid) {
-			$errors['recaptcha'] = E::ts('ReCAPTCHA v3 token not generated or invalid score');
+	require_once E::path('vendor/autoload.php');
+	if (isset($_POST['g-recaptcha-token'])) {
+		$recaptcha = new \ReCaptcha\ReCaptcha(CRM_Core_Config::singleton()->formprotection_recaptchaPrivateKey);
+		$resp = $recaptcha->setScoreThreshold(0.5)
+						->verify($_POST['g-recaptcha-token'], $_SERVER['REMOTE_ADDR']);
+		if ($resp->isSuccess()) {
+
+		} else {
+			$errors['recaptcha']= $resp->getErrorCodes();
+		}
+	}
+	else if (isset($_POST['g-recaptcha-response'])) {
+		$recaptcha = new \ReCaptcha\ReCaptcha(CRM_Core_Config::singleton()->formprotection_recaptchaPrivateKey);
+		$resp = $recaptcha->verify($_POST['g-recaptcha-response'], $_SERVER['REMOTE_ADDR']);
+		if ($resp->isSuccess()) {
+
+		} else {
+			$errors['recaptcha']= $resp->getErrorCodes();
 		}
 	}
 }
