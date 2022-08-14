@@ -76,7 +76,7 @@ function _recaptcha_http_post($host, $path, $data) {
 }
 
 /**
- * Gets the challenge HTML (javascript and non-javascript version).
+ * Gets the challenge v3 HTML (javascript and non-javascript version).
  * This is called from the browser, and the resulting reCAPTCHA HTML widget
  * is embedded within the HTML form it was called from.
  * @param string $pubkey A public key for reCAPTCHA
@@ -85,7 +85,7 @@ function _recaptcha_http_post($host, $path, $data) {
  *
  * @return string - The HTML to be embedded in the user's form.
  */
-function recaptcha_get_html ($pubkey, $error = NULL, $use_ssl = FALSE) {
+function recaptcha_get_html_v3 ($pubkey, $error = NULL, $use_ssl = FALSE) {
   if ($pubkey == NULL || $pubkey == '') {
     die("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
   }
@@ -127,6 +127,40 @@ function recaptcha_get_html ($pubkey, $error = NULL, $use_ssl = FALSE) {
 }
 
 /**
+ * Gets the challenge v3 HTML (javascript and non-javascript version).
+ * This is called from the browser, and the resulting reCAPTCHA HTML widget
+ * is embedded within the HTML form it was called from.
+ * @param string $pubkey A public key for reCAPTCHA
+ * @param string $error The error given by reCAPTCHA (optional, default is null)
+ * @param boolean $use_ssl Should the request be made over ssl? (optional, default is false)
+ *
+ * @return string - The HTML to be embedded in the user's form.
+ */
+function recaptcha_get_html_v2 ($pubkey, $error = NULL, $use_ssl = FALSE) {
+    if ($pubkey == NULL || $pubkey == '') {
+      die("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
+    }
+  
+    if ($use_ssl) {
+      $server = RECAPTCHA_API_SECURE_SERVER;
+    }
+    else {
+      $server = RECAPTCHA_API_SERVER;
+    }
+  
+    $errorpart = "";
+    if ($error) {
+      $errorpart = "&amp;error=" . $error;
+    }
+    return '<div class="g-recaptcha" data-sitekey="' . $pubkey . '"></div>
+                  <script type="text/javascript" src="' . $server . '"></script>
+      <noscript>
+          <iframe src="' . $server . '" height="300" width="500" frameborder="0"></iframe><br/>
+          <div class="g-recaptcha" data-sitekey="' . $pubkey . '"></div>
+      </noscript>';
+}
+
+/**
  * A ReCaptchaResponse is returned from recaptcha_check_answer()
  */
 class ReCaptchaResponse {
@@ -144,42 +178,36 @@ class ReCaptchaResponse {
  * @return ReCaptchaResponse
  */
 function recaptcha_check_answer ($privkey, $remoteip, $response, $extra_params = array()) {
-  if ($privkey == NULL || $privkey == '') {
-    die("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
-  }
-
-  if ($remoteip == NULL || $remoteip == '') {
-    die("For security reasons, you must pass the remote ip to reCAPTCHA");
-  }
-
-  //discard spam submissions
-  if ($response == NULL || strlen($response) == 0) {
-    $recaptcha_response = new ReCaptchaResponse();
-    $recaptcha_response->is_valid = FALSE;
-    $recaptcha_response->error = 'incorrect-captcha-sol';
-    return $recaptcha_response;
-  }
-
-  $validationResponse = _recaptcha_http_post(RECAPTCHA_VERIFY_SERVER, "/recaptcha/api/siteverify",
-          [
-            'secret' => $privkey,
-            'remoteip' => $remoteip,
-            'response' => $response,
-          ] + $extra_params
-        );
-
-  $answers = json_decode($validationResponse, TRUE);
-  $recaptcha_response = new ReCaptchaResponse();
-  if($answers['score'] > 0.5) {
-	  $recaptcha_response->is_valid = $answers['success'] ?? NULL;
-	  $recaptcha_response->error = $answers['error-codes'] ?? NULL;
-  }
-  else {
-	  $recaptcha_response->is_valid = FALSE;
-	  $recaptcha_response->error = $answers['error-codes'] ?? NULL;
-  }
-  return $recaptcha_response;
-
+    if ($privkey == NULL || $privkey == '') {
+        die("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
+      }
+    
+      if ($remoteip == NULL || $remoteip == '') {
+        die("For security reasons, you must pass the remote ip to reCAPTCHA");
+      }
+    
+      //discard spam submissions
+      if ($response == NULL || strlen($response) == 0) {
+        $recaptcha_response = new ReCaptchaResponse();
+        $recaptcha_response->is_valid = FALSE;
+        $recaptcha_response->error = 'incorrect-captcha-sol';
+        return $recaptcha_response;
+      }
+    
+      $validationResponse = _recaptcha_http_post(RECAPTCHA_VERIFY_SERVER, "/recaptcha/api/siteverify",
+              [
+                'secret' => $privkey,
+                'remoteip' => $remoteip,
+                'response' => $response,
+              ] + $extra_params
+            );
+    
+      $answers = json_decode($validationResponse, TRUE);
+      $recaptcha_response = new ReCaptchaResponse();
+    
+      $recaptcha_response->is_valid = $answers['success'] ?? NULL;
+      $recaptcha_response->error = $answers['error-codes'] ?? NULL;
+      return $recaptcha_response;
 }
 
 /**
