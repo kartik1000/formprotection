@@ -72,11 +72,31 @@ class CRM_Formprotection_ReCAPTCHA {
 
     // Load the Recaptcha api.js over HTTPS
     $useHTTPS = TRUE;
-
-    $html = recaptcha_get_html(\Civi::settings()->get('formprotection_recaptchaPublicKey'), $error, $useHTTPS);
-
-    $form->assign('recaptchaHTML', $html);
-    $form->assign('recaptchaOptions', \Civi::settings()->get('formprotection_recaptchaOptions'));
+    if (\Civi::settings()->get('formprotection_recaptchaversion') == 'v3') {
+        $html = recaptcha_get_html_v3(\Civi::settings()->get('formprotection_recaptchaPublicKey'), $error, $useHTTPS);
+        $form->assign('recaptchaHTML', $html);
+        $form->assign('recaptchaOptions', \Civi::settings()->get('formprotection_recaptchaOptions'));
+    }
+    else if (\Civi::settings()->get('formprotection_recaptchaversion') == 'v2checkbox') {
+        $html = recaptcha_get_html_v2(\Civi::settings()->get('formprotection_recaptchaPublicKey'), $error, $useHTTPS);
+        $form->assign('recaptchaHTML', $html);
+        $form->assign('recaptchaOptions', \Civi::settings()->get('formprotection_recaptchaOptions'));
+        $form->add(
+        'text',
+        'g-recaptcha-response',
+        'reCaptcha',
+        NULL,
+        TRUE
+        );
+        //$form->registerRule('recaptcha', 'callback', 'validate', 'CRM_Utils_ReCAPTCHA');
+        //$form->addRule('g-recaptcha-response', E::ts('Please go back and complete the CAPTCHA at the bottom of this form.'), 'recaptcha');
+        if ($form->isSubmitted() && empty($form->_submitValues['g-recaptcha-response'])) {
+           $form->setElementError(
+               'g-recaptcha-response',
+               E::ts('Please go back and complete the CAPTCHA at the bottom of this form.')
+           );
+        }
+    }
   }
 
   /**
